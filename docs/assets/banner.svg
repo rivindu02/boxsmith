@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title description">
+  <title id="title">Boxsmith — forge detections, understand every AP point</title>
+  <desc id="description">An illustrated detection lab with a circle, triangle and square inside bounding boxes, beside the Boxsmith name and learning goals.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#101d35"/>
+      <stop offset="1" stop-color="#080e1c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#253754" stroke-width=".6" opacity=".6"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" rx="24" fill="url(#background)"/>
+  <rect x=".5" y=".5" width="1279" height="419" rx="24" fill="none" stroke="#293c59"/>
+  <rect x="0" y="0" width="1280" height="5" rx="2" fill="url(#accent)"/>
+  <g font-family="DejaVu Sans, Arial, sans-serif">
+    <text x="56" y="66" fill="#38bdf8" font-size="12" font-weight="700" letter-spacing="3.5">THE OBJECT DETECTION LAB</text>
+    <g transform="translate(56 105)" fill="none" stroke="#38bdf8" stroke-width="4">
+      <path d="M0 15V0H15 M40 0H55V15 M55 40V55H40 M15 55H0V40"/>
+      <path d="M16 19L28 12L40 19V35L28 42L16 35Z" stroke="#34d399" stroke-width="2.5"/>
+    </g>
+    <text x="130" y="157" fill="#f1f5f9" font-size="60" font-weight="750" letter-spacing="-2">Boxsmith</text>
+    <text x="56" y="214" fill="#f1f5f9" font-size="24" font-weight="600">Forge detections.</text>
+    <text x="56" y="250" fill="#b8c8de" font-size="24">Understand every AP point.</text>
+    <text x="56" y="297" fill="#91a5c1" font-size="15">Train a tiny CNN. Move a threshold. Follow the evidence.</text>
+    <g font-size="12" font-weight="600" text-anchor="middle">
+      <rect x="56" y="334" width="120" height="32" rx="16" fill="#152c40" stroke="#28516a"/>
+      <text x="116" y="355" fill="#7dd3fc">173k parameters</text>
+      <rect x="188" y="334" width="126" height="32" rx="16" fill="#152c35" stroke="#265448"/>
+      <text x="251" y="355" fill="#6ee7b7">Synthetic shapes</text>
+      <rect x="326" y="334" width="109" height="32" rx="16" fill="#2a2332" stroke="#51405b"/>
+      <text x="380" y="355" fill="#d8b4fe">Interactive AP</text>
+    </g>
+    <g transform="translate(725 48)">
+      <rect width="500" height="324" rx="18" fill="#101a2c" stroke="#30435f"/>
+      <path d="M0 42H500" stroke="#30435f"/>
+      <circle cx="20" cy="21" r="4" fill="#fb7185"/>
+      <circle cx="36" cy="21" r="4" fill="#fbbf24"/>
+      <circle cx="52" cy="21" r="4" fill="#34d399"/>
+      <text x="250" y="26" text-anchor="middle" fill="#8da6c5" font-size="11" letter-spacing="2">SEE / ADJUST / UNDERSTAND</text>
+      <rect x="16" y="56" width="468" height="214" fill="url(#grid)"/>
+      <circle cx="100" cy="149" r="44" fill="#60a5fa"/>
+      <rect x="50" y="98" width="100" height="102" rx="2" fill="none" stroke="#fb7185" stroke-width="2"/>
+      <rect x="50" y="77" width="69" height="21" rx="3" fill="#fb7185"/>
+      <text x="60" y="92" fill="#0b1020" font-size="12" font-weight="700">CIRCLE</text>
+      <path d="M255 102L314 207H196Z" fill="#fbbf24"/>
+      <rect x="191" y="96" width="128" height="117" rx="2" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <rect x="191" y="75" width="83" height="21" rx="3" fill="#fbbf24"/>
+      <text x="201" y="90" fill="#0b1020" font-size="12" font-weight="700">TRIANGLE</text>
+      <rect x="369" y="144" width="73" height="73" rx="2" fill="#34d399"/>
+      <rect x="363" y="138" width="85" height="85" rx="2" fill="none" stroke="#38bdf8" stroke-width="2"/>
+      <rect x="363" y="117" width="74" height="21" rx="3" fill="#38bdf8"/>
+      <text x="373" y="132" fill="#0b1020" font-size="12" font-weight="700">SQUARE</text>
+      <path d="M22 282H478" stroke="#263a56"/>
+      <text x="24" y="305" fill="#7dd3fc" font-size="12">CONFIDENCE</text>
+      <path d="M124 300H239" stroke="#344862" stroke-width="4" stroke-linecap="round"/>
+      <path d="M124 300H196" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="196" cy="300" r="6" fill="#38bdf8"/>
+      <text x="280" y="305" fill="#9ab1cd" font-size="12">IoU · NMS · PR · mAP</text>
+    </g>
+  </g>
+</svg>
