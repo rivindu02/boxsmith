@@ -1,78 +1,127 @@
 # Environment and development workflow
 
-Checked on 2026-10-28. Resource availability can change on this shared server.
+Validated on 2026-10-28. This is a shared server; check current resources before training.
 
-## Development locations
+## Source and Git
 
-- Local SSHFS mount: `~/mnt/entc`.
-- Mounted project directory: `~/mnt/entc/Rivindu/boxsmith`.
-- Remote project directory relative to the SSH user's home: `~/Rivindu/boxsmith`.
-- SSH host alias: `entc`.
-- GitHub: <https://github.com/rivindu02/boxsmith> (public).
+- Local SSHFS project: `~/mnt/entc/Rivindu/boxsmith`.
+- Remote project: `~/Rivindu/boxsmith` using `ssh entc`.
+- Public repository: <https://github.com/rivindu02/boxsmith>.
 
-Edit and commit through the mounted project directory. Execute Python and training
-on the server, where the GPUs and data reside. Do not run a second Git operation
-on the same repository simultaneously over SSH and SSHFS.
+All implementation commits were made from the local SSHFS directory. Python,
+tests, training, and browser validation run on the server. Avoid simultaneous Git
+operations through SSH and SSHFS. The existing mount is writable; restricted agents
+need filesystem permission because it is outside their normal writable workspace.
 
-```sh
-cd ~/mnt/entc/Rivindu/boxsmith
-git status
-ssh entc
-cd ~/Rivindu/boxsmith
-```
+## Working server environment
 
-The existing SSHFS mount is writable outside the restricted workspace sandbox.
-No remount was necessary. A restricted agent may need elevated filesystem access
-to write here because the mount is outside its writable workspace.
-
-## Server inspection
-
-| Check | Observation |
+| Item | Validated value |
 | --- | --- |
-| OS | Linux 6.8.0-147-generic |
 | Python | 3.12.3 |
-| pip | 24.0 |
-| Git | 2.43.0 |
+| PyTorch | 2.13.0+cu130 |
+| NumPy | 2.5.4 |
+| Pillow | 12.3.0 |
+| Streamlit | 1.66.1 |
+| Plotly | 7.1.0 |
+| PyYAML | 6.0.1 |
+| pytest / pycocotools | 9.1.1 / 2.0.11 |
 | GPUs | 3 × Quadro RTX 5000, 16,384 MiB each |
 | NVIDIA driver | 580.178.04 |
-| Root/home free disk | Approximately 614 MB; filesystem reports 100% used |
-| PyTorch package metadata | 2.13.0 |
-| PyTorch import and CUDA check | Imports as 2.13.0+cu130; CUDA available; three devices visible |
-| TorchVision package metadata | 0.28.0 |
-| Other proposed dependencies | NumPy, Streamlit, Plotly, pytest not found in the inspected Python environment |
+| Training device | cuda:0; other GPUs were occupied |
+| Git | 2.43.0 |
 
-PyTorch imports and detects CUDA, but warns that NumPy is missing. Package metadata
-alone does not prove a working training environment. Confirm remaining imports,
-PyTorch/TorchVision compatibility, and a small model forward/backward pass in the
-selected project environment before installation is considered complete.
+The isolated training environment uses `--system-site-packages` to reuse the
+existing CUDA PyTorch install. Missing project packages were installed into this
+environment only; system Python and other projects were not modified.
 
-Alternative mounts inspected: `/mnt/gpu-nfs-share` reports approximately 37 GB free
-and `/mnt/minura` reports approximately 341 GB free. These are shared locations;
-neither mount root is writable by the current SSH user. A project-specific writable
-directory still needs to be identified; no directories were created on either mount.
+TorchVision is not required by the implemented tiny model. Training and NMS are
+implemented in the project, with deterministic CPU NMS during evaluation.
 
-At inspection, GPU 2 was almost fully occupied (~15.5 GB), while GPUs 0 and 1
-each used ~0.5 GB. Recheck before choosing a device; do not assume availability.
-No training jobs were started during setup.
+## Storage locations
 
-## Before implementation
+The root/home filesystem has roughly 612 MB free and reports 100% utilization.
+The larger `/mnt/minura` volume has roughly 341 GB free. Its sticky, world-writable
+`tmp` directory allowed creation of an owned Boxsmith directory without modifying
+another user's files. The shared NFS mount root was not writable.
 
-1. Identify sufficient writable storage; the current free space is insufficient
-   for a normal fresh GPU environment. Alternative mounted paths still need
-   capacity and permission checks before use.
-2. Inspect existing compatible environments without modifying them. Create a
-   project environment on the chosen storage and pin only versions actually tested.
-3. Verify imports and a minimal forward/backward pass, then build data/metrics.
+| Purpose | Server path |
+| --- | --- |
+| CUDA training environment | `/mnt/minura/tmp/boxsmith-ravindu/venv` |
+| Independent CPU environment | `/mnt/minura/tmp/boxsmith-ravindu/clean-env` |
+| Baseline run | `/mnt/minura/tmp/boxsmith-ravindu/baseline` |
+| Prediction caches | `/mnt/minura/tmp/boxsmith-ravindu/cache` |
+| Browser validation tools | `/mnt/minura/tmp/boxsmith-ravindu/browsers` |
 
-When the app exists, bind it to remote loopback and forward its port locally:
+`checkpoints/best.pt` in the project is an ignored symlink to the baseline's best
+checkpoint. Model weights are published as a release asset, not committed to Git.
+Temporary-volume contents can be removed by server maintenance; the release and
+documented generation commands provide a recovery path.
+
+Generated scenes are kept on demand or cached in RAM during training. No dataset
+image files are needed. Best/latest are the only retained per-run checkpoints.
+Persistent inference caches retain at most six entries; Streamlit caches also
+have entry limits. Dataset, weights, environments, and caches are ignored by Git.
+
+## Run the existing setup
 
 ```sh
-# On your local machine; run the app in another SSH session after implementation.
-ssh -L 8501:127.0.0.1:8501 entc
-# Future server command (app.py does not exist yet):
-python -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
+ssh entc
+cd ~/Rivindu/boxsmith
+export BOXSMITH_CACHE=/mnt/minura/tmp/boxsmith-ravindu/cache
+/mnt/minura/tmp/boxsmith-ravindu/venv/bin/python -m streamlit run app.py --server.address 127.0.0.1
 ```
 
-Do not install dependencies or allocate model caches on the nearly full root
-filesystem until storage is resolved. Generated data, caches, and model weights
-belong outside version control.
+From your local machine:
+
+```sh
+ssh -N -L 8501:127.0.0.1:8501 entc
+```
+
+Visit <http://localhost:8501>. If an app is already listening on 8501, use that
+instance or choose another port for both the app and tunnel.
+
+Train another baseline in a new output directory on the larger volume:
+
+```sh
+cd ~/Rivindu/boxsmith
+/mnt/minura/tmp/boxsmith-ravindu/venv/bin/python -m boxsmith.train \
+  --device cuda:0 --output /mnt/minura/tmp/boxsmith-ravindu/another-run
+```
+
+Recheck `nvidia-smi` first. Device selection is explicit; the initial run used only
+GPU 0. No unrelated server files were deleted.
+
+## Reproduce a clean CPU environment
+
+`requirements-cpu.lock.txt` pins the complete tested Python 3.12 CPU dependency
+set, including PyTorch's CPU build. It includes test dependencies. Run:
+
+```sh
+python3.12 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-cpu.lock.txt
+python -m pip install --no-deps -e .
+python -m boxsmith.fetch_checkpoint
+python -m pytest -q
+python -m pip check
+```
+
+A separate environment without system-site packages passed all 13 tests, dependency
+checks, and CPU inference on the trained checkpoint. The CUDA environment also
+passed all 13 tests and a real forward/backward check before training.
+
+For CUDA, `requirements.txt` pins direct project dependencies without pinning a
+particular CUDA wheel flavor. Install the appropriate PyTorch wheel first.
+`requirements-dev.txt` adds the test dependencies. Do not install large environments
+on the nearly full root disk.
+
+Optional screenshot capture:
+
+```sh
+python -m pip install playwright
+python -m playwright install chromium --only-shell
+python scripts/capture_preview.py --output docs/preview.png
+```
+
+Use an external `PLAYWRIGHT_BROWSERS_PATH` on this server to keep browser downloads
+off the root disk. Playwright is not needed to use Boxsmith or run its test suite.

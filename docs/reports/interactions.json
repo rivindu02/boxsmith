@@ -1,0 +1,6 @@
+{
+  "scene_count": 500,
+  "confidence_rerun_seconds": 0.2914140659850091,
+  "matching_iou_rerun_seconds": 0.2953370709437877,
+  "nms_iou_rerun_seconds": 1.577837000018917
+}

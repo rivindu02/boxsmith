@@ -1,5 +1,10 @@
 # Boxsmith implementation plan
 
+First release implemented on 2026-10-28: data/metrics, the tiny CNN, baseline training,
+interactive app, clean CPU setup, and validation are complete. See [results](RESULTS.md)
+and [environment notes](ENVIRONMENT.md) for the measured implementation and setup.
+The sections below record the original design and acceptance criteria.
+
 ## Goal and scope
 
 Build an educational detector whose predictions and evaluation are inspectable.

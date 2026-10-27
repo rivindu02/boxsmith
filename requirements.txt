@@ -1,0 +1,7 @@
+# Direct dependencies validated on Python 3.12. See docs/ENVIRONMENT.md for CUDA/CPU setup.
+torch==2.13.0
+numpy==2.5.4
+Pillow==12.3.0
+streamlit==1.66.1
+plotly==7.1.0
+PyYAML==6.0.1

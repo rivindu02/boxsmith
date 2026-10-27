@@ -1,0 +1,35 @@
+{
+  "map50": 0.9989346023757175,
+  "map50_95": 0.95329238372662,
+  "ap50_by_class": {
+    "circle": 0.9980349586715676,
+    "square": 0.9988941774441801,
+    "triangle": 0.9998746710114049
+  },
+  "identity": {
+    "checkpoint": "61adda73503b24aeaaf0db8466ce3ef38ec2872457f65e6d66ec42d6c6d541fc",
+    "dataset": {
+      "generator_version": 1,
+      "split": "val",
+      "seed": 42,
+      "count": 500,
+      "config": {
+        "image_size": 128,
+        "max_shapes": 6,
+        "min_size": 16,
+        "max_size": 36,
+        "max_overlap": 0.1
+      }
+    },
+    "decoder": 1
+  },
+  "nms_iou": 0.5,
+  "score_floor": 0.001,
+  "max_detections": 100,
+  "checkpoint_epoch": 24,
+  "parameters": 173536,
+  "untrained_map50": 0.00013557724419716464,
+  "inference_or_cache_seconds": 1.5347646599402651,
+  "nms_seconds": 0.6123373629525304,
+  "metric_seconds": 1.2184220219496638
+}
