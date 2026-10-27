@@ -12,7 +12,7 @@ import torch
 from boxsmith.boxes import postprocess
 from boxsmith.data import CLASS_NAMES, SceneConfig, ShapesDataset, scene
 from boxsmith.examples import SCENARIOS, controlled_predictions
-from boxsmith.metrics import evaluate, operating_point, summary
+from boxsmith.metrics import evaluate, evaluate_thresholds, operating_point
 from boxsmith.predict import (MAX_DETECTIONS, SCORE_FLOOR, cached_predictions,
                               file_hash, load_model, suppress)
 from boxsmith.visualization import overlay, pr_figure
@@ -52,12 +52,13 @@ def example_dataset(count, scenario):
 
 
 @st.cache_data(max_entries=8, show_spinner=False)
-def metric_bundle(raw, targets, nms_iou, matching_iou):
+def metric_bundle(raw, targets, nms_iou):
     started = time.perf_counter()
     predictions = suppress(raw, nms_iou)
-    selected = evaluate(predictions, targets, matching_iou)
-    scores = summary(predictions, targets)
-    return predictions, selected, scores, time.perf_counter() - started
+    grid = evaluate_thresholds(predictions, targets)
+    values = [r["map"] for r in grid if r["map"] is not None]
+    scores = {"map50": grid[0]["map"], "map50_95": float(np.mean(values)) if values else None}
+    return predictions, grid, scores, time.perf_counter() - started
 
 
 with st.sidebar:
@@ -100,7 +101,8 @@ else:
     st.info("Controlled examples: these predictions illustrate known errors and are not outputs of a trained model.")
 
 with st.spinner("Evaluating detections…"):
-    predictions, result, scores, elapsed = metric_bundle(raw, targets, nms_iou, matching_iou)
+    predictions, grid, scores, elapsed = metric_bundle(raw, targets, nms_iou)
+result = grid[round((matching_iou - 0.5) / 0.05)]
 point = operating_point(result["curves"], confidence)
 
 

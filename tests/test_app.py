@@ -38,3 +38,25 @@ def test_controlled_empty_scene_and_nms_experiment():
     assert evaluate([suppressed], [target])["map"] == 1
     if len(target["boxes"]) > 1:
         assert evaluate([raw], [target])["map"] < 1
+
+
+def test_trained_checkpoint_view_and_new_empty_scene(monkeypatch, tmp_path):
+    import torch
+    from dataclasses import asdict
+    from boxsmith.model import TinyDetector
+
+    model = TinyDetector()
+    checkpoint = tmp_path / "tiny.pt"
+    torch.save({"model": model.state_dict(), "image_size": 128, "scene_config": asdict(SceneConfig()),
+                "config": {"seed": 42}, "epoch": 0, "parameter_count": 173536}, checkpoint)
+    monkeypatch.setenv("BOXSMITH_CHECKPOINT", str(checkpoint))
+    monkeypatch.setenv("BOXSMITH_CACHE", str(tmp_path / "cache"))
+    app = AppTest.from_file(Path(__file__).resolve().parents[1] / "app.py", default_timeout=30).run()
+    assert not app.exception
+    assert app.selectbox(key="prediction_source").value == "Trained tiny CNN"
+    app.radio[0].set_value("New seeded scene").run()
+    assert not app.exception
+    empty_index = next(i for i in range(100) if not len(scene(i, "scene")[1]["boxes"]))
+    app.number_input[0].set_value(empty_index).run()
+    assert not app.exception
+    assert any("This scene: 0 TP · 0 FP · 0 missed objects" in c.value for c in app.caption)

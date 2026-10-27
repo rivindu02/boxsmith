@@ -28,6 +28,9 @@ def main():
     parser.add_argument("--val-count", type=int)
     parser.add_argument("--overfit", action="store_true", help="Evaluate on training scenes for a diagnostic only")
     args = parser.parse_args()
+    output = Path(args.output)
+    if any((output / filename).exists() for filename in ("history.jsonl", "best.pt", "latest.pt")):
+        parser.error("Output already contains a run; choose a new --output directory")
     config = yaml.safe_load(Path(args.config).read_text())
     for key in ("epochs", "train_count", "val_count"):
         if getattr(args, key) is not None:
@@ -54,7 +57,6 @@ def main():
                                          shuffle=True, generator=torch.Generator().manual_seed(seed))
     optimizer = torch.optim.AdamW(model.parameters(), lr=config["learning_rate"], weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config["epochs"], eta_min=0.0001)
-    output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     metadata = {"config": config, "scene_config": asdict(scene_config),
                 "generator_version": GENERATOR_VERSION, "image_size": scene_config.image_size,
