@@ -11,13 +11,16 @@ def class_curve(predictions, targets, label, matching_iou=0.5):
     ground_truth = [t["boxes"][t["labels"] == label] for t in targets]
     total = sum(len(g) for g in ground_truth)
     matched = [np.zeros(len(g), dtype=bool) for g in ground_truth]
+    overlap_matrices = [iou(p["boxes"], g) for p, g in zip(predictions, ground_truth)]
     detections = [(float(p["scores"][j]), image, j)
                   for image, p in enumerate(predictions) for j in range(len(p["scores"]))
                   if p["labels"][j] == label]
     detections.sort(key=lambda item: -item[0])  # stable image/candidate ties
     tp = np.zeros(len(detections), dtype=np.int64)
     for rank, (_, image, j) in enumerate(detections):
-        overlaps = iou(predictions[image]["boxes"][j:j + 1], ground_truth[image])[0]
+        if matched[image].all():
+            continue
+        overlaps = overlap_matrices[image][j].copy()
         overlaps[matched[image]] = -1
         if len(overlaps):
             best = int(np.argmax(overlaps))
