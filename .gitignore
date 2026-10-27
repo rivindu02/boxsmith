@@ -1,0 +1,39 @@
+# Python and tools
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.DS_Store
+.idea/
+.vscode/
+
+# Generated datasets, training artifacts, and inference caches
+/data/
+/datasets/
+/checkpoints/
+/runs/
+/outputs/
+/artifacts/
+/cache/
+/logs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.log
+wandb/
