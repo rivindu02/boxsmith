@@ -1,0 +1,14 @@
+seed: 42
+train_count: 4000
+val_count: 500
+epochs: 32
+batch_size: 64
+learning_rate: 0.002
+eval_every: 4
+threads: 4
+scene:
+  image_size: 128
+  max_shapes: 6
+  min_size: 16
+  max_size: 36
+  max_overlap: 0.1
